@@ -2,305 +2,121 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow"> <!-- Prevents Google indexing -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISPRS 2026 Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* BRANDING COLORS */
-        :root {
-            --navy-dark: #0a192f;
-            --navy-mid: #112240;
-            --navy-light: #233554;
-            --gold: #D4AF37;
-            --gold-hover: #f1c40f;
-            --text-main: #e6f1ff;
-            --text-dim: #8892b0;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
-        body {
-            background-color: var(--navy-dark);
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* HEADER */
-        header {
-            background: var(--navy-mid);
-            padding: 1rem;
-            border-bottom: 3px solid var(--gold);
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
-
-        header h1 {
-            font-size: 1.2rem;
-            color: var(--gold);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        #sync-status {
-            font-size: 0.7rem;
-            margin-top: 5px;
-            color: var(--text-dim);
-        }
-
-        /* QUICK TOPIC CHIPS */
-        .chips-container {
-            padding: 12px;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            background: var(--navy-dark);
-            scrollbar-width: none;
-        }
-        .chips-container::-webkit-scrollbar { display: none; }
-
-        .chip {
-            background: var(--navy-light);
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-        }
-
-        .chip:hover {
-            background: var(--gold);
-            color: var(--navy-dark);
-        }
-
-        /* CHAT WINDOW */
-        #chat-window {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background: radial-gradient(circle at center, #112240 0%, #0a192f 100%);
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 15px;
-            line-height: 1.5;
-            font-size: 0.95rem;
-            animation: fadeIn 0.3s ease forwards;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .bot-msg {
-            align-self: flex-start;
-            background-color: var(--navy-light);
-            color: var(--text-main);
-            border-bottom-left-radius: 2px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-
-        .user-msg {
-            align-self: flex-end;
-            background-color: var(--gold);
-            color: var(--navy-dark);
-            border-bottom-right-radius: 2px;
-            font-weight: 600;
-        }
-
-        /* TYPING INDICATOR */
-        .typing {
-            display: none;
-            padding: 10px 20px;
-            color: var(--gold);
-            font-size: 0.8rem;
-            font-style: italic;
-        }
-
-        /* INPUT AREA */
-        .input-area {
-            background: var(--navy-mid);
-            padding: 15px;
-            display: flex;
-            gap: 10px;
-            border-top: 1px solid var(--navy-light);
-        }
-
-        input {
-            flex: 1;
-            background: var(--navy-dark);
-            border: 1px solid var(--navy-light);
-            padding: 12px 18px;
-            border-radius: 25px;
-            color: white;
-            outline: none;
-            font-size: 1rem;
-        }
-
-        input:focus { border-color: var(--gold); }
-
-        button {
-            background: var(--gold);
-            border: none;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            cursor: pointer;
-            color: var(--navy-dark);
-            transition: transform 0.2s;
-        }
-
-        button:hover { transform: scale(1.1); }
-
+        :root { --navy-dark: #0a192f; --navy-mid: #112240; --navy-light: #233554; --gold: #D4AF37; --text-main: #e6f1ff; --text-dim: #8892b0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--navy-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: var(--navy-mid); padding: 1rem; border-bottom: 3px solid var(--gold); text-align: center; }
+        header h1 { font-size: 1.1rem; color: var(--gold); text-transform: uppercase; }
+        .chips-container { padding: 10px; display: flex; gap: 8px; overflow-x: auto; background: var(--navy-dark); scrollbar-width: none; }
+        .chip { background: var(--navy-light); border: 1px solid var(--gold); color: var(--gold); padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
+        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #112240 0%, #0a192f 100%); }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 15px; line-height: 1.5; font-size: 0.95rem; }
+        .bot-msg { align-self: flex-start; background: var(--navy-light); border: 1px solid rgba(212, 175, 55, 0.2); }
+        .user-msg { align-self: flex-end; background: var(--gold); color: var(--navy-dark); font-weight: 600; }
+        .input-area { background: var(--navy-mid); padding: 15px; display: flex; gap: 10px; border-top: 1px solid var(--navy-light); }
+        input { flex: 1; background: var(--navy-dark); border: 1px solid var(--navy-light); padding: 12px 18px; border-radius: 25px; color: white; outline: none; }
+        button { background: var(--gold); border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; color: var(--navy-dark); }
         strong { color: var(--gold); }
-        hr { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0; }
-
     </style>
 </head>
 <body>
 
     <header>
-        <h1 id="main-title">ISPRS Congress 2026</h1>
-        <div id="sync-status"><i class="fas fa-spinner fa-spin"></i> Connecting to live data...</div>
+        <h1 id="title">ISPRS Congress 2026</h1>
+        <div id="sync-status" style="font-size: 0.7rem; color: var(--text-dim);">● Initializing...</div>
     </header>
 
     <div class="chips-container">
         <div class="chip" onclick="quickAsk('Agenda')">📅 Agenda</div>
         <div class="chip" onclick="quickAsk('WiFi')">📶 WiFi</div>
         <div class="chip" onclick="quickAsk('Registration')">📝 Registration</div>
-        <div class="chip" onclick="quickAsk('Speakers')">🎤 Speakers</div>
-        <div class="chip" onclick="quickAsk('Exhibitors')">🏢 Exhibitors</div>
+        <div class="chip" onclick="quickAsk('Rooms')">🏢 Rooms</div>
         <div class="chip" onclick="quickAsk('Social')">🥂 Social</div>
-        <div class="chip" onclick="quickAsk('Hotels')">🏨 Hotels</div>
-        <div class="chip" onclick="quickAsk('Transport')">🚆 Transport</div>
     </div>
 
     <div id="chat-window">
-        <div class="message bot-msg">
-            Hello! I am your ISPRS 2026 Assistant. I'm currently syncing with the latest Excel updates. How can I help you?
-        </div>
+        <div class="message bot-msg">Hello! I am your private ISPRS 2026 assistant. How can I help you today?</div>
     </div>
 
-    <div id="typing-indicator" class="typing">Searching congress database...</div>
-
     <div class="input-area">
-        <input type="text" id="user-input" placeholder="Ask about sessions, rooms, hotels..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <input type="text" id="user-input" placeholder="Ask a question..." onkeypress="if(event.key==='Enter') sendMessage()">
         <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
 
 <script>
     let DB = {};
 
-    // 1. DATA SYNC
     async function loadData() {
         const status = document.getElementById('sync-status');
         try {
             const response = await fetch('data.json');
-            if (!response.ok) throw new Error("File not found");
             DB = await response.json();
-            
-            // Try to set dynamic title from 'General' table
-            const eventInfo = DB.General?.find(i => i.Field === "Event Full Name");
-            if(eventInfo) document.getElementById('main-title').innerText = eventInfo.Value;
-
-            status.innerHTML = '<i class="fas fa-check-circle" style="color: #2ecc71"></i> Live Data Active';
+            status.innerHTML = '● Live & Private';
+            status.style.color = '#2ecc71';
         } catch (e) {
-            status.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #e74c3c"></i> Offline Mode';
-            console.warn("Sync failed. Check if data.json is in your GitHub repo.");
+            status.innerHTML = '● Syncing...';
         }
     }
 
-    // 2. SEARCH ENGINE (Based on your 11 tables)
     function generateResponse(input) {
         const q = input.toLowerCase();
 
-        // 1. FAQ Search
-        const faq = DB.FAQ?.find(f => q.includes(f.Question?.toLowerCase()) || q.includes(f.Category?.toLowerCase()));
-        if (faq) return `<strong>${faq.Question}</strong><hr>${faq.Answer}`;
+        // Matches your 11 Table names
+        if (q.includes('wifi') || q.includes('internet')) {
+            const item = DB.Logistics?.find(l => l.Category?.toLowerCase().includes('wifi')) || DB.FAQ?.find(f => f.Question.toLowerCase().includes('wifi'));
+            return `<strong>WiFi Details:</strong><br>${item?.Answer || item?.Value || 'Please check at the Registration Desk.'}`;
+        }
+        
+        const faq = DB.FAQ?.find(f => q.includes(f.Question?.toLowerCase()));
+        if (faq) return `<strong>${faq.Question}</strong><br>${faq.Answer}`;
 
-        // 2. Agenda / Sessions
         const session = DB.Agenda?.find(s => q.includes(s.Session_Title?.toLowerCase()) || q.includes(s.Speaker_Names?.toLowerCase()));
-        if (session) return `<strong>${session.Session_Title}</strong><hr>📅 ${session.Date} | ${session.Start_Time}<br>📍 Room: ${session.Room}<br>🎤 ${session.Speaker_Names}<br>📝 ${session.Description || ''}`;
+        if (session) return `<strong>Session: ${session.Session_Title}</strong><br>📍 ${session.Room}<br>📅 ${session.Date} @ ${session.Start_Time}`;
 
-        // 3. Speakers
         const spk = DB.Speakers?.find(s => q.includes(s.Full_Name?.toLowerCase()));
-        if (spk) return `<strong>Speaker: ${spk.Full_Name}</strong><hr>🎓 ${spk.Organization}<br>🎤 Topic: ${spk.Presentation_Topic}<br>📅 Session: ${spk.Session_Title}`;
+        if (spk) return `<strong>Speaker: ${spk.Full_Name}</strong><br>🎓 ${spk.Organization}<br>🎤 ${spk.Presentation_Topic}`;
 
-        // 4. Rooms / Venue
         const room = DB.Rooms?.find(r => q.includes(r.Room_Name?.toLowerCase()));
-        if (room) return `<strong>Room: ${room.Room_Name}</strong><hr>🏢 Level: ${room.Floor_Level}<br>👥 Capacity: ${room.Capacity}<br>♿ Accessibility: ${room.Accessibility || 'Standard'}`;
+        if (room) return `<strong>Room: ${room.Room_Name}</strong><br>🏢 Floor: ${room.Floor_Level}<br>👥 Capacity: ${room.Capacity}`;
 
-        // 5. Registration & Logistics
-        if (q.includes('registration') || q.includes('check in') || q.includes('desk')) {
-            const reg = DB.Registration?.[0];
-            return reg ? `<strong>Registration Info:</strong><hr>${reg.Details || reg.Value || 'Desk located in the Main Lobby.'}` : "The Registration Desk is in the Main Lobby (MTCC North).";
-        }
-        if (q.includes('wifi') || q.includes('internet') || q.includes('logistics')) {
-            const log = DB.Logistics?.find(l => l.Field?.toLowerCase().includes('wifi') || l.Category?.toLowerCase().includes('wifi')) || DB.FAQ?.find(f => f.Question.toLowerCase().includes('wifi'));
-            return log ? `<strong>WiFi/Logistics:</strong><hr>${log.Value || log.Answer}` : "WiFi details are available at the Registration Desk.";
-        }
+        const soc = DB.Social?.find(s => q.includes(s.Event_Name?.toLowerCase()) || q.includes('social'));
+        if (soc) return `<strong>${soc.Event_Name}</strong><br>📍 ${soc.Location}<br>📅 ${soc.Date}`;
 
-        // 6. Exhibitors
-        const exh = DB.Exhibitors?.find(e => q.includes(e.Company_Name?.toLowerCase()) || q.includes(e.Booth_Number?.toLowerCase()));
-        if (exh) return `<strong>Exhibitor: ${exh.Company_Name}</strong><hr>📍 Booth: ${exh.Booth_Number}<br>🏢 Zone: ${exh.Hall_Zone}<br>🔗 ${exh.Website || ''}`;
-
-        // 7. Social Events
-        const soc = DB.Social?.find(s => q.includes(s.Event_Name?.toLowerCase()) || q.includes('social') || q.includes('party'));
-        if (soc) return `<strong>${soc.Event_Name}</strong><hr>📅 ${soc.Date} at ${soc.Start_Time}<br>📍 ${soc.Location}<br>👔 Dress Code: ${soc.Dress_Code}`;
-
-        // 8. Hotels & Transport
         const hotel = DB.Hotels?.find(h => q.includes(h.Name?.toLowerCase()) || q.includes('hotel'));
-        if (hotel) return `<strong>${hotel.Name}</strong><hr>📍 ${hotel.Address}<br>🚶 ${hotel.Distance_to_Venue}<br>ℹ️ ${hotel.Notes || ''}`;
+        if (hotel) return `<strong>${hotel.Name}</strong><br>📍 ${hotel.Address}<br>🚶 ${hotel.Distance_to_Venue}`;
 
-        const trans = DB.Transport?.find(t => q.includes(t.Type?.toLowerCase()) || q.includes('airport') || q.includes('taxi') || q.includes('train'));
-        if (trans) return `<strong>Transport - ${trans.Type}:</strong><hr>${trans.Notes || trans.Details}`;
+        const trans = DB.Transport?.find(t => q.includes('airport') || q.includes('taxi'));
+        if (trans) return `<strong>Transport:</strong><br>${trans.Notes || 'Details are available at the concierge.'}`;
 
-        // 9. General Fallback
-        const gen = DB.General?.find(g => q.includes(g.Field?.toLowerCase()));
-        if (gen) return `<strong>${gen.Field}:</strong><br>${gen.Value}`;
+        if (q.includes('registration')) return `<strong>Registration:</strong><br>${DB.Registration?.[0]?.Details || 'The desk is in the MTCC North Lobby.'}`;
 
-        return "I'm not quite sure about that. Please visit the **Registration Desk** or check the **Conference4me** app for the latest live updates.";
+        return "I'm not sure about that. Please visit the Registration Desk for assistance.";
     }
 
-    // UI LOGIC
     function sendMessage() {
         const input = document.getElementById('user-input');
         const text = input.value.trim();
         if (!text) return;
-
         appendMsg(text, 'user-msg');
+        setTimeout(() => appendMsg(generateResponse(text), 'bot-msg'), 600);
         input.value = '';
-        document.getElementById('typing-indicator').style.display = 'block';
-
-        setTimeout(() => {
-            document.getElementById('typing-indicator').style.display = 'none';
-            const response = generateResponse(text);
-            appendMsg(response, 'bot-msg');
-        }, 600);
     }
 
     function appendMsg(text, className) {
-        const chatWindow = document.getElementById('chat-window');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${className}`;
-        msgDiv.innerHTML = text.replace(/\n/g, '<br>');
-        chatWindow.appendChild(msgDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+        const win = document.getElementById('chat-window');
+        const div = document.createElement('div');
+        div.className = `message ${className}`;
+        div.innerHTML = text.replace(/\n/g, '<br>');
+        win.appendChild(div);
+        win.scrollTop = win.scrollHeight;
     }
 
-    function quickAsk(topic) {
-        document.getElementById('user-input').value = topic;
-        sendMessage();
-    }
-
+    function quickAsk(t) { document.getElementById('user-input').value = t; sendMessage(); }
     loadData();
 </script>
 </body>
