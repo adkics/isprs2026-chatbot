@@ -1,45 +1,242 @@
-function generateResponse(input) {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISPRS 2026 Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --navy-dark: #0a192f;
+            --navy-mid: #112240;
+            --navy-light: #233554;
+            --gold: #D4AF37;
+            --gold-hover: #f1c40f;
+            --text-main: #e6f1ff;
+            --text-dim: #8892b0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+        body {
+            background-color: var(--navy-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--navy-mid);
+            padding: 1rem;
+            border-bottom: 3px solid var(--gold);
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        header h1 { font-size: 1.1rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
+
+        #sync-status { font-size: 0.7rem; margin-top: 5px; color: var(--text-dim); }
+
+        .chips-container {
+            padding: 12px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            background: var(--navy-dark);
+            scrollbar-width: none;
+        }
+        .chips-container::-webkit-scrollbar { display: none; }
+
+        .chip {
+            background: var(--navy-light);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .chip:hover { background: var(--gold); color: var(--navy-dark); }
+
+        #chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: radial-gradient(circle at center, #112240 0%, #0a192f 100%);
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .bot-msg { align-self: flex-start; background-color: var(--navy-light); border: 1px solid rgba(212, 175, 55, 0.2); border-bottom-left-radius: 2px; }
+        .user-msg { align-self: flex-end; background-color: var(--gold); color: var(--navy-dark); font-weight: 600; border-bottom-right-radius: 2px; }
+
+        .input-area {
+            background: var(--navy-mid);
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid var(--navy-light);
+        }
+
+        input {
+            flex: 1;
+            background: var(--navy-dark);
+            border: 1px solid var(--navy-light);
+            padding: 12px 18px;
+            border-radius: 25px;
+            color: white;
+            outline: none;
+        }
+
+        button {
+            background: var(--gold);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--navy-dark);
+        }
+
+        strong { color: var(--gold); }
+        hr { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="main-title">ISPRS Congress 2026</h1>
+        <div id="sync-status">Connecting to private database...</div>
+    </header>
+
+    <div class="chips-container">
+        <div class="chip" onclick="quickAsk('Agenda')">📅 Agenda</div>
+        <div class="chip" onclick="quickAsk('WiFi')">📶 WiFi</div>
+        <div class="chip" onclick="quickAsk('Registration')">📝 Registration</div>
+        <div class="chip" onclick="quickAsk('Speakers')">🎤 Speakers</div>
+        <div class="chip" onclick="quickAsk('Exhibitors')">🏢 Exhibitors</div>
+        <div class="chip" onclick="quickAsk('Social')">🥂 Social</div>
+        <div class="chip" onclick="quickAsk('Hotels')">🏨 Hotels</div>
+    </div>
+
+    <div id="chat-window">
+        <div class="message bot-msg">Hello! I am your ISPRS 2026 Assistant. How can I help you today?</div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Ask a question..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+
+<script>
+    let DB = {};
+
+    async function loadData() {
+        const status = document.getElementById('sync-status');
+        try {
+            const response = await fetch('data.json');
+            const raw = await response.json();
+            // Handle the 'AllData' wrapper from Power Automate
+            DB = raw.AllData || raw;
+            
+            status.innerHTML = '● Live & Private';
+            status.style.color = '#2ecc71';
+
+            // Set Title from Excel
+            const eventName = DB.General?.find(i => i["General Info"] === "Event Full Name");
+            if(eventName) document.getElementById('main-title').innerText = eventName.Answer;
+        } catch (e) {
+            status.innerHTML = '● Offline Mode';
+            status.style.color = '#e74c3c';
+        }
+    }
+
+    function generateResponse(input) {
         const q = input.toLowerCase();
 
         // 1. FAQ Search
-        const faq = DB.FAQ?.find(f => q.includes(f.Question?.toLowerCase()) || q.includes(f.Category?.toLowerCase()));
-        if (faq) return `<strong>${faq.Question}</strong><hr>${faq.Answer}`;
+        const faq = DB.FAQ?.find(f => f.Question && q.includes(f.Question.toLowerCase()));
+        if (faq && faq.Answer) return `<strong>${faq.Question}</strong><hr>${faq.Answer}`;
 
-        // 2. Agenda / Sessions (Using "Session Title" with space)
-        const session = DB.Agenda?.find(s => q.includes(s["Session Title"]?.toLowerCase()) || q.includes(s["Speaker Name(s)"]?.toLowerCase()));
+        // 2. WiFi / Logistics
+        if (q.includes('wifi') || q.includes('internet')) {
+            const wifi = DB.Logistics?.find(l => l["Logistics Info"]?.toLowerCase().includes('wifi'));
+            return wifi ? `<strong>WiFi Info:</strong><hr>${wifi.Answer}` : "WiFi passwords will be available at the registration desk.";
+        }
+
+        // 3. Agenda Search
+        const session = DB.Agenda?.find(s => s["Session Title"] && q.includes(s["Session Title"].toLowerCase()));
         if (session) return `<strong>${session["Session Title"]}</strong><hr>📅 ${session.Date} | ${session["Start Time"]}<br>📍 Room: ${session.Room}<br>🎤 ${session["Speaker Name(s)"]}`;
 
-        // 3. Speakers (Using "Full Name" with space)
-        const spk = DB.Speakers?.find(s => q.includes(s["Full Name"]?.toLowerCase()));
+        // 4. Speaker Search
+        const spk = DB.Speakers?.find(s => s["Full Name"] && q.includes(s["Full Name"].toLowerCase()));
         if (spk) return `<strong>Speaker: ${spk["Full Name"]}</strong><hr>🎓 ${spk.Organization}<br>🎤 Topic: ${spk["Presentation Topic"]}`;
 
-        // 4. General / Registration / Logistics (Matching your specific "General Info" columns)
-        const gen = DB.General?.find(g => q.includes(g["General Info"]?.toLowerCase()));
-        if (gen) return `<strong>${gen["General Info"]}:</strong><br>${gen.Answer}`;
-
-        const reg = DB.Registration?.find(r => q.includes(r["Registration Info"]?.toLowerCase()));
-        if (reg) return `<strong>${reg["Registration Info"]}:</strong><br>${reg.Answer}`;
-
-        const log = DB.Logistics?.find(l => q.includes(l["Logistics Info"]?.toLowerCase()) || q.includes('wifi'));
-        if (log) return `<strong>${log["Logistics Info"]}:</strong><br>${log.Answer}`;
-
-        // 5. Exhibitors
-        const exh = DB.Exhibitors?.find(e => q.includes(e["Company Name"]?.toLowerCase()));
-        if (exh) return `<strong>${exh["Company Name"]}</strong><hr>📍 Booth: ${exh["Booth Number"]}<br>🏢 Zone: ${exh["Hall / Zone"]}`;
-
-        // 6. Rooms
-        const room = DB.Rooms?.find(r => q.includes(r["Room / Space Name"]?.toLowerCase()));
+        // 5. Room Search
+        const room = DB.Rooms?.find(r => r["Room / Space Name"] && q.includes(r["Room / Space Name"].toLowerCase()));
         if (room) return `<strong>Room: ${room["Room / Space Name"]}</strong><hr>🏢 Level: ${room["Floor / Level"]}<br>👥 Capacity: ${room.Capacity}`;
 
-        // 7. Social / Hotels / Transport
-        const soc = DB.Social?.find(s => q.includes(s["Event Name"]?.toLowerCase()) || q.includes('social'));
-        if (soc) return `<strong>${soc["Event Name"]}</strong><hr>📍 ${soc["Location / Venue"]}<br>📅 ${soc.Date} at ${soc["Start Time"]}`;
+        // 6. Exhibitor Search
+        const exh = DB.Exhibitors?.find(e => e["Company Name"] && q.includes(e["Company Name"].toLowerCase()));
+        if (exh) return `<strong>Exhibitor: ${exh["Company Name"]}</strong><hr>📍 Booth: ${exh["Booth Number"]}<br>🏢 Zone: ${exh["Hall / Zone"]}`;
 
-        const hotel = DB.Hotels?.find(h => q.includes(h.Name?.toLowerCase()) || q.includes('hotel'));
+        // 7. Social / Hotels
+        const soc = DB.Social?.find(s => s["Event Name"] && q.includes(s["Event Name"].toLowerCase()));
+        if (soc) return `<strong>${soc["Event Name"]}</strong><hr>📍 ${soc["Location / Venue"]}<br>📅 ${soc.Date} @ ${soc["Start Time"]}`;
+
+        const hotel = DB.Hotels?.find(h => h.Name && q.includes(h.Name.toLowerCase()));
         if (hotel) return `<strong>${hotel.Name}</strong><hr>📍 ${hotel.Address}<br>🚶 ${hotel["Distance to Venue"]}`;
 
-        const trans = DB.Transport?.find(t => q.includes(t["Transport General"]?.toLowerCase()) || q.includes('airport') || q.includes('taxi'));
-        if (trans) return `<strong>${trans["Transport General"]}:</strong><br>${trans.Answer}`;
+        // 8. General Info Fallback
+        const gen = DB.General?.find(g => g["General Info"] && q.includes(g["General Info"].toLowerCase()));
+        if (gen) return `<strong>${gen["General Info"]}:</strong><br>${gen.Answer}`;
 
-        return "I'm not quite sure about that. Please visit the **Registration Desk** in the MTCC North Lobby or check the **Conference4me** app for live updates.";
+        return "I'm not quite sure. Please visit the **Registration Desk** in the Main Lobby or check the **Conference4me** app for live updates.";
     }
+
+    function sendMessage() {
+        const input = document.getElementById('user-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        appendMsg(text, 'user-msg');
+        input.value = '';
+
+        setTimeout(() => {
+            const response = generateResponse(text);
+            appendMsg(response, 'bot-msg');
+        }, 600);
+    }
+
+    function appendMsg(text, className) {
+        const win = document.getElementById('chat-window');
+        const div = document.createElement('div');
+        div.className = `message ${className}`;
+        div.innerHTML = text.replace(/\n/g, '<br>');
+        win.appendChild(div);
+        win.scrollTop = win.scrollHeight;
+    }
+
+    function quickAsk(t) { document.getElementById('user-input').value = t; sendMessage(); }
+    loadData();
+</script>
+</body>
+</html>
