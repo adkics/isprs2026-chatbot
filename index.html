@@ -1,123 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow"> <!-- Prevents Google indexing -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISPRS 2026 Assistant</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root { --navy-dark: #0a192f; --navy-mid: #112240; --navy-light: #233554; --gold: #D4AF37; --text-main: #e6f1ff; --text-dim: #8892b0; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--navy-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: var(--navy-mid); padding: 1rem; border-bottom: 3px solid var(--gold); text-align: center; }
-        header h1 { font-size: 1.1rem; color: var(--gold); text-transform: uppercase; }
-        .chips-container { padding: 10px; display: flex; gap: 8px; overflow-x: auto; background: var(--navy-dark); scrollbar-width: none; }
-        .chip { background: var(--navy-light); border: 1px solid var(--gold); color: var(--gold); padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
-        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; background: radial-gradient(circle at center, #112240 0%, #0a192f 100%); }
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 15px; line-height: 1.5; font-size: 0.95rem; }
-        .bot-msg { align-self: flex-start; background: var(--navy-light); border: 1px solid rgba(212, 175, 55, 0.2); }
-        .user-msg { align-self: flex-end; background: var(--gold); color: var(--navy-dark); font-weight: 600; }
-        .input-area { background: var(--navy-mid); padding: 15px; display: flex; gap: 10px; border-top: 1px solid var(--navy-light); }
-        input { flex: 1; background: var(--navy-dark); border: 1px solid var(--navy-light); padding: 12px 18px; border-radius: 25px; color: white; outline: none; }
-        button { background: var(--gold); border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; color: var(--navy-dark); }
-        strong { color: var(--gold); }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1 id="title">ISPRS Congress 2026</h1>
-        <div id="sync-status" style="font-size: 0.7rem; color: var(--text-dim);">● Initializing...</div>
-    </header>
-
-    <div class="chips-container">
-        <div class="chip" onclick="quickAsk('Agenda')">📅 Agenda</div>
-        <div class="chip" onclick="quickAsk('WiFi')">📶 WiFi</div>
-        <div class="chip" onclick="quickAsk('Registration')">📝 Registration</div>
-        <div class="chip" onclick="quickAsk('Rooms')">🏢 Rooms</div>
-        <div class="chip" onclick="quickAsk('Social')">🥂 Social</div>
-    </div>
-
-    <div id="chat-window">
-        <div class="message bot-msg">Hello! I am your private ISPRS 2026 assistant. How can I help you today?</div>
-    </div>
-
-    <div class="input-area">
-        <input type="text" id="user-input" placeholder="Ask a question..." onkeypress="if(event.key==='Enter') sendMessage()">
-        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-    </div>
-
-<script>
-    let DB = {};
-
-    async function loadData() {
-        const status = document.getElementById('sync-status');
-        try {
-            const response = await fetch('data.json');
-            DB = await response.json();
-            status.innerHTML = '● Live & Private';
-            status.style.color = '#2ecc71';
-        } catch (e) {
-            status.innerHTML = '● Syncing...';
-        }
-    }
-
-    function generateResponse(input) {
+function generateResponse(input) {
         const q = input.toLowerCase();
 
-        // Matches your 11 Table names
-        if (q.includes('wifi') || q.includes('internet')) {
-            const item = DB.Logistics?.find(l => l.Category?.toLowerCase().includes('wifi')) || DB.FAQ?.find(f => f.Question.toLowerCase().includes('wifi'));
-            return `<strong>WiFi Details:</strong><br>${item?.Answer || item?.Value || 'Please check at the Registration Desk.'}`;
-        }
-        
-        const faq = DB.FAQ?.find(f => q.includes(f.Question?.toLowerCase()));
-        if (faq) return `<strong>${faq.Question}</strong><br>${faq.Answer}`;
+        // 1. FAQ Search
+        const faq = DB.FAQ?.find(f => q.includes(f.Question?.toLowerCase()) || q.includes(f.Category?.toLowerCase()));
+        if (faq) return `<strong>${faq.Question}</strong><hr>${faq.Answer}`;
 
-        const session = DB.Agenda?.find(s => q.includes(s.Session_Title?.toLowerCase()) || q.includes(s.Speaker_Names?.toLowerCase()));
-        if (session) return `<strong>Session: ${session.Session_Title}</strong><br>📍 ${session.Room}<br>📅 ${session.Date} @ ${session.Start_Time}`;
+        // 2. Agenda / Sessions (Using "Session Title" with space)
+        const session = DB.Agenda?.find(s => q.includes(s["Session Title"]?.toLowerCase()) || q.includes(s["Speaker Name(s)"]?.toLowerCase()));
+        if (session) return `<strong>${session["Session Title"]}</strong><hr>📅 ${session.Date} | ${session["Start Time"]}<br>📍 Room: ${session.Room}<br>🎤 ${session["Speaker Name(s)"]}`;
 
-        const spk = DB.Speakers?.find(s => q.includes(s.Full_Name?.toLowerCase()));
-        if (spk) return `<strong>Speaker: ${spk.Full_Name}</strong><br>🎓 ${spk.Organization}<br>🎤 ${spk.Presentation_Topic}`;
+        // 3. Speakers (Using "Full Name" with space)
+        const spk = DB.Speakers?.find(s => q.includes(s["Full Name"]?.toLowerCase()));
+        if (spk) return `<strong>Speaker: ${spk["Full Name"]}</strong><hr>🎓 ${spk.Organization}<br>🎤 Topic: ${spk["Presentation Topic"]}`;
 
-        const room = DB.Rooms?.find(r => q.includes(r.Room_Name?.toLowerCase()));
-        if (room) return `<strong>Room: ${room.Room_Name}</strong><br>🏢 Floor: ${room.Floor_Level}<br>👥 Capacity: ${room.Capacity}`;
+        // 4. General / Registration / Logistics (Matching your specific "General Info" columns)
+        const gen = DB.General?.find(g => q.includes(g["General Info"]?.toLowerCase()));
+        if (gen) return `<strong>${gen["General Info"]}:</strong><br>${gen.Answer}`;
 
-        const soc = DB.Social?.find(s => q.includes(s.Event_Name?.toLowerCase()) || q.includes('social'));
-        if (soc) return `<strong>${soc.Event_Name}</strong><br>📍 ${soc.Location}<br>📅 ${soc.Date}`;
+        const reg = DB.Registration?.find(r => q.includes(r["Registration Info"]?.toLowerCase()));
+        if (reg) return `<strong>${reg["Registration Info"]}:</strong><br>${reg.Answer}`;
+
+        const log = DB.Logistics?.find(l => q.includes(l["Logistics Info"]?.toLowerCase()) || q.includes('wifi'));
+        if (log) return `<strong>${log["Logistics Info"]}:</strong><br>${log.Answer}`;
+
+        // 5. Exhibitors
+        const exh = DB.Exhibitors?.find(e => q.includes(e["Company Name"]?.toLowerCase()));
+        if (exh) return `<strong>${exh["Company Name"]}</strong><hr>📍 Booth: ${exh["Booth Number"]}<br>🏢 Zone: ${exh["Hall / Zone"]}`;
+
+        // 6. Rooms
+        const room = DB.Rooms?.find(r => q.includes(r["Room / Space Name"]?.toLowerCase()));
+        if (room) return `<strong>Room: ${room["Room / Space Name"]}</strong><hr>🏢 Level: ${room["Floor / Level"]}<br>👥 Capacity: ${room.Capacity}`;
+
+        // 7. Social / Hotels / Transport
+        const soc = DB.Social?.find(s => q.includes(s["Event Name"]?.toLowerCase()) || q.includes('social'));
+        if (soc) return `<strong>${soc["Event Name"]}</strong><hr>📍 ${soc["Location / Venue"]}<br>📅 ${soc.Date} at ${soc["Start Time"]}`;
 
         const hotel = DB.Hotels?.find(h => q.includes(h.Name?.toLowerCase()) || q.includes('hotel'));
-        if (hotel) return `<strong>${hotel.Name}</strong><br>📍 ${hotel.Address}<br>🚶 ${hotel.Distance_to_Venue}`;
+        if (hotel) return `<strong>${hotel.Name}</strong><hr>📍 ${hotel.Address}<br>🚶 ${hotel["Distance to Venue"]}`;
 
-        const trans = DB.Transport?.find(t => q.includes('airport') || q.includes('taxi'));
-        if (trans) return `<strong>Transport:</strong><br>${trans.Notes || 'Details are available at the concierge.'}`;
+        const trans = DB.Transport?.find(t => q.includes(t["Transport General"]?.toLowerCase()) || q.includes('airport') || q.includes('taxi'));
+        if (trans) return `<strong>${trans["Transport General"]}:</strong><br>${trans.Answer}`;
 
-        if (q.includes('registration')) return `<strong>Registration:</strong><br>${DB.Registration?.[0]?.Details || 'The desk is in the MTCC North Lobby.'}`;
-
-        return "I'm not sure about that. Please visit the Registration Desk for assistance.";
+        return "I'm not quite sure about that. Please visit the **Registration Desk** in the MTCC North Lobby or check the **Conference4me** app for live updates.";
     }
-
-    function sendMessage() {
-        const input = document.getElementById('user-input');
-        const text = input.value.trim();
-        if (!text) return;
-        appendMsg(text, 'user-msg');
-        setTimeout(() => appendMsg(generateResponse(text), 'bot-msg'), 600);
-        input.value = '';
-    }
-
-    function appendMsg(text, className) {
-        const win = document.getElementById('chat-window');
-        const div = document.createElement('div');
-        div.className = `message ${className}`;
-        div.innerHTML = text.replace(/\n/g, '<br>');
-        win.appendChild(div);
-        win.scrollTop = win.scrollHeight;
-    }
-
-    function quickAsk(t) { document.getElementById('user-input').value = t; sendMessage(); }
-    loadData();
-</script>
-</body>
-</html>
