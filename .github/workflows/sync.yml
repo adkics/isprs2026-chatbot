@@ -1,26 +1,22 @@
 name: Sync Data
 on:
-  issues:
-    types: [opened]
+  repository_dispatch:
+    types: [excel_update]
 
 jobs:
   update-data:
-    if: startsWith(github.event.issue.title, 'DATA_UPDATE')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Update data.json
         run: |
-          echo '${{ github.event.issue.body }}' > data.json
-      - name: Commit change
+          echo '${{ toJson(github.event.client_payload) }}' > data.json
+      - name: Commit and Push
         run: |
           git config --global user.name 'DataBot'
           git config --global user.email 'bot@isprs.org'
           git add data.json
-          git commit -m "Automated data update"
+          git commit -m "Data update from Excel" || exit 0
           git push
-      - name: Close Issue
-        run: |
-          gh issue close ${{ github.event.issue.number }} --confirm
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
