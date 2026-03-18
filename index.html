@@ -52,7 +52,7 @@
 </header>
 
 <div id="chat-window">
-    <div class="msg bot">Hello. I am the ISPRS 2026 Assistant. I have been trained on all 11 conference databases. How can I help you?</div>
+    <div class="msg bot">Hello. I am the ISPRS 2026 Assistant. How can I help you?</div>
 </div>
 <div id="loading"><i class="fas fa-spinner fa-spin"></i> Analyzing conference database...</div>
 
@@ -63,7 +63,7 @@
 
 <script>
     // --- REPLACE THIS WITH YOUR CLOUDFLARE WORKER URL ---
-    const WORKER_URL = "https://isprs-ai-brain.YOURNAME.workers.dev";
+    const WORKER_URL = "https://isprs-ai-brain.arjun-e9d.workers.dev/";
 
     async function askAI() {
         const input = document.getElementById('user-input');
