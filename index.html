@@ -38,7 +38,7 @@
 
         header h1 { font-size: 1.1rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
 
-        #sync-status { font-size: 0.7rem; margin-top: 5px; color: var(--text-dim); }
+        #sync-status { font-size: 0.7rem; margin-top: 5px; color: #2ecc71; }
 
         .chips-container {
             padding: 12px;
@@ -116,29 +116,25 @@
             color: var(--navy-dark);
         }
 
-        strong { color: var(--gold); }
-        hr { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0; }
+        .typing { font-style: italic; color: var(--text-dim); font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <header>
         <h1 id="main-title">ISPRS Congress 2026</h1>
-        <div id="sync-status">Connecting to private database...</div>
+        <div id="sync-status">● Live AI Assistant</div>
     </header>
 
     <div class="chips-container">
-        <div class="chip" onclick="quickAsk('Agenda')">📅 Agenda</div>
-        <div class="chip" onclick="quickAsk('WiFi')">📶 WiFi</div>
-        <div class="chip" onclick="quickAsk('Registration')">📝 Registration</div>
-        <div class="chip" onclick="quickAsk('Speakers')">🎤 Speakers</div>
-        <div class="chip" onclick="quickAsk('Exhibitors')">🏢 Exhibitors</div>
-        <div class="chip" onclick="quickAsk('Social')">🥂 Social</div>
-        <div class="chip" onclick="quickAsk('Hotels')">🏨 Hotels</div>
+        <div class="chip" onclick="quickAsk('What is the agenda for Monday?')">📅 Agenda</div>
+        <div class="chip" onclick="quickAsk('What is the WiFi password?')">📶 WiFi</div>
+        <div class="chip" onclick="quickAsk('Where is registration?')">📝 Registration</div>
+        <div class="chip" onclick="quickAsk('Who are the keynote speakers?')">🎤 Speakers</div>
     </div>
 
     <div id="chat-window">
-        <div class="message bot-msg">Hello! I am your ISPRS 2026 Assistant. How can I help you today?</div>
+        <div class="message bot-msg">Hello! I am your ISPRS 2026 AI Assistant. I have access to the latest conference schedule and details. How can I help you?</div>
     </div>
 
     <div class="input-area">
@@ -147,96 +143,53 @@
     </div>
 
 <script>
-    let DB = {};
+    // REPLACE the URL below with your Cloudflare Worker URL
+    const WORKER_URL = "https://isprs2026-chatbot.arjun-e9d.workers.dev/";
 
-    async function loadData() {
-        const status = document.getElementById('sync-status');
-        try {
-            const response = await fetch('data.json');
-            const raw = await response.json();
-            // Handle the 'AllData' wrapper from Power Automate
-            DB = raw.AllData || raw;
-            
-            status.innerHTML = '● Live & Private';
-            status.style.color = '#2ecc71';
-
-            // Set Title from Excel
-            const eventName = DB.General?.find(i => i["General Info"] === "Event Full Name");
-            if(eventName) document.getElementById('main-title').innerText = eventName.Answer;
-        } catch (e) {
-            status.innerHTML = '● Offline Mode';
-            status.style.color = '#e74c3c';
-        }
-    }
-
-    function generateResponse(input) {
-        const q = input.toLowerCase();
-
-        // 1. FAQ Search
-        const faq = DB.FAQ?.find(f => f.Question && q.includes(f.Question.toLowerCase()));
-        if (faq && faq.Answer) return `<strong>${faq.Question}</strong><hr>${faq.Answer}`;
-
-        // 2. WiFi / Logistics
-        if (q.includes('wifi') || q.includes('internet')) {
-            const wifi = DB.Logistics?.find(l => l["Logistics Info"]?.toLowerCase().includes('wifi'));
-            return wifi ? `<strong>WiFi Info:</strong><hr>${wifi.Answer}` : "WiFi passwords will be available at the registration desk.";
-        }
-
-        // 3. Agenda Search
-        const session = DB.Agenda?.find(s => s["Session Title"] && q.includes(s["Session Title"].toLowerCase()));
-        if (session) return `<strong>${session["Session Title"]}</strong><hr>📅 ${session.Date} | ${session["Start Time"]}<br>📍 Room: ${session.Room}<br>🎤 ${session["Speaker Name(s)"]}`;
-
-        // 4. Speaker Search
-        const spk = DB.Speakers?.find(s => s["Full Name"] && q.includes(s["Full Name"].toLowerCase()));
-        if (spk) return `<strong>Speaker: ${spk["Full Name"]}</strong><hr>🎓 ${spk.Organization}<br>🎤 Topic: ${spk["Presentation Topic"]}`;
-
-        // 5. Room Search
-        const room = DB.Rooms?.find(r => r["Room / Space Name"] && q.includes(r["Room / Space Name"].toLowerCase()));
-        if (room) return `<strong>Room: ${room["Room / Space Name"]}</strong><hr>🏢 Level: ${room["Floor / Level"]}<br>👥 Capacity: ${room.Capacity}`;
-
-        // 6. Exhibitor Search
-        const exh = DB.Exhibitors?.find(e => e["Company Name"] && q.includes(e["Company Name"].toLowerCase()));
-        if (exh) return `<strong>Exhibitor: ${exh["Company Name"]}</strong><hr>📍 Booth: ${exh["Booth Number"]}<br>🏢 Zone: ${exh["Hall / Zone"]}`;
-
-        // 7. Social / Hotels
-        const soc = DB.Social?.find(s => s["Event Name"] && q.includes(s["Event Name"].toLowerCase()));
-        if (soc) return `<strong>${soc["Event Name"]}</strong><hr>📍 ${soc["Location / Venue"]}<br>📅 ${soc.Date} @ ${soc["Start Time"]}`;
-
-        const hotel = DB.Hotels?.find(h => h.Name && q.includes(h.Name.toLowerCase()));
-        if (hotel) return `<strong>${hotel.Name}</strong><hr>📍 ${hotel.Address}<br>🚶 ${hotel["Distance to Venue"]}`;
-
-        // 8. General Info Fallback
-        const gen = DB.General?.find(g => g["General Info"] && q.includes(g["General Info"].toLowerCase()));
-        if (gen) return `<strong>${gen["General Info"]}:</strong><br>${gen.Answer}`;
-
-        return "I'm not quite sure. Please visit the **Registration Desk** in the Main Lobby or check the **Conference4me** app for live updates.";
-    }
-
-    function sendMessage() {
+    async function sendMessage() {
         const input = document.getElementById('user-input');
         const text = input.value.trim();
         if (!text) return;
 
+        // Add User Message
         appendMsg(text, 'user-msg');
         input.value = '';
 
-        setTimeout(() => {
-            const response = generateResponse(text);
-            appendMsg(response, 'bot-msg');
-        }, 600);
+        // Add Loading State
+        const loadingId = "load-" + Date.now();
+        appendMsg("Thinking...", 'bot-msg typing', loadingId);
+
+        try {
+            const response = await fetch(WORKER_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text })
+            });
+            
+            const data = await response.json();
+            
+            // Remove loading, add AI response
+            document.getElementById(loadingId).remove();
+            appendMsg(data.reply, 'bot-msg');
+        } catch (e) {
+            document.getElementById(loadingId).innerText = "Error connecting. Please check your internet.";
+        }
     }
 
-    function appendMsg(text, className) {
+    function appendMsg(text, className, id = null) {
         const win = document.getElementById('chat-window');
         const div = document.createElement('div');
+        if(id) div.id = id;
         div.className = `message ${className}`;
         div.innerHTML = text.replace(/\n/g, '<br>');
         win.appendChild(div);
         win.scrollTop = win.scrollHeight;
     }
 
-    function quickAsk(t) { document.getElementById('user-input').value = t; sendMessage(); }
-    loadData();
+    function quickAsk(t) { 
+        document.getElementById('user-input').value = t; 
+        sendMessage(); 
+    }
 </script>
 </body>
 </html>
