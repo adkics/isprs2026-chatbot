@@ -3,192 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISPRS 2026 Assistant</title>
-    <!-- Use a professional font and icons -->
+    <title>ISPRS 2026 | AI Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary: #0f172a;
-            --accent: #fbbf24;
-            --bg: #f8fafc;
-            --text: #1e293b;
-            --bot-msg: #ffffff;
-            --user-msg: #fbbf24;
-        }
+        :root { --navy: #0f172a; --gold: #D4AF37; --slate: #1e293b; --white: #f8fafc; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--navy); color: var(--white); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        header { padding: 25px; border-bottom: 2px solid var(--gold); background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(10px); text-align: center; }
+        header h1 { font-size: 1.1rem; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; }
+        
+        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .msg { max-width: 85%; padding: 12px 18px; border-radius: 15px; font-size: 0.95rem; line-height: 1.4; }
+        .bot { align-self: flex-start; background: var(--slate); border: 1px solid rgba(212, 175, 55, 0.3); }
+        .user { align-self: flex-end; background: var(--gold); color: var(--navy); font-weight: 600; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
-
-        body { background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
-
-        /* Professional Header */
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            border-bottom: 4px solid var(--accent);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        header h1 { font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
-        #status { font-size: 0.7rem; color: #94a3b8; margin-top: 5px; }
-
-        /* Chat Container */
-        #chat-window {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background: #f1f5f9;
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            line-height: 1.5;
-            font-size: 0.95rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .bot-msg { align-self: flex-start; background: var(--bot-msg); color: var(--text); border-left: 4px solid var(--accent); }
-        .user-msg { align-self: flex-end; background: var(--user-msg); color: var(--primary); font-weight: 600; }
-
-        /* Quick Action Buttons */
-        .quick-actions {
-            display: flex;
-            gap: 10px;
-            padding: 10px 20px;
-            overflow-x: auto;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-        }
-        .action-btn {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: 0.2s;
-        }
-        .action-btn:hover { background: var(--accent); border-color: var(--accent); }
-
-        /* Input Area */
-        .input-area {
-            padding: 20px;
-            background: white;
-            display: flex;
-            gap: 10px;
-            border-top: 1px solid #e2e8f0;
-        }
-        input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            outline: none;
-            font-size: 1rem;
-        }
-        input:focus { border-color: var(--accent); }
-        button {
-            background: var(--primary);
-            color: var(--accent);
-            border: none;
-            width: 50px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
+        .input-container { padding: 20px; background: var(--slate); display: flex; gap: 10px; }
+        input { flex:1; background: var(--navy); border: 1px solid var(--gold); padding: 12px; border-radius: 8px; color: white; outline: none; }
+        button { background: var(--gold); border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; color: var(--navy); font-weight: bold; }
+        
+        .dots { font-style: italic; color: var(--gold); font-size: 0.8rem; padding-left: 20px; display: none; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>ISPRS 2026 Congress</h1>
-    <div id="status">● Connecting to Database...</div>
-</header>
-
-<div class="quick-actions">
-    <button class="action-btn" onclick="quickAsk('WiFi')">📶 WiFi</button>
-    <button class="action-btn" onclick="quickAsk('Registration')">📝 Registration</button>
-    <button class="action-btn" onclick="quickAsk('Agenda')">📅 Agenda</button>
-    <button class="action-btn" onclick="quickAsk('Speakers')">🎤 Speakers</button>
-</div>
+<header><h1>XXV ISPRS CONGRESS 2026</h1></header>
 
 <div id="chat-window">
-    <div class="message bot-msg">Welcome to the XXV ISPRS Congress 2026. How can I assist you today?</div>
+    <div class="msg bot">Welcome. I am the official ISPRS 2026 AI Assistant. How may I help you today?</div>
 </div>
+<div id="loading" class="dots">AI is thinking...</div>
 
-<div class="input-area">
-    <input type="text" id="user-input" placeholder="Type your question..." onkeypress="if(event.key==='Enter') findAnswer()">
-    <button onclick="findAnswer()"><i class="fas fa-paper-plane"></i></button>
+<div class="input-container">
+    <input type="text" id="user-input" placeholder="Ask about the agenda, speakers, or WiFi..." onkeypress="if(event.key==='Enter') askAI()">
+    <button onclick="askAI()"><i class="fas fa-paper-plane"></i></button>
 </div>
 
 <script>
-    let DB = {};
+    // REPLACE THIS WITH YOUR CLOUDFLARE WORKER URL
+    const WORKER_URL = "https://isprs-ai-brain.YOURNAME.workers.dev";
 
-    // 1. Fetch data from your GitHub directly (No API needed)
-    async function loadData() {
-        try {
-            // This pulls your Excel data that Power Automate saved to GitHub
-            const response = await fetch('data.json');
-            DB = await response.json();
-            document.getElementById('status').innerHTML = "● Database Live";
-            document.getElementById('status').style.color = "#22c55e";
-        } catch (e) {
-            document.getElementById('status').innerHTML = "● Offline Mode";
-        }
-    }
-
-    function findAnswer() {
+    async function askAI() {
         const input = document.getElementById('user-input');
-        const query = input.value.trim().toLowerCase();
-        if (!query) return;
+        const text = input.value.trim();
+        if(!text) return;
 
-        appendMsg(input.value, 'user-msg');
+        appendMsg(text, 'user');
         input.value = '';
+        document.getElementById('loading').style.display = 'block';
 
-        // SEARCH LOGIC (The "No-API Brain")
-        let foundAnswer = "I'm sorry, I couldn't find a specific answer for that. Please visit the **Information Desk** in the Main Hall.";
-
-        // Search through your Excel categories (Adjust names to match your Excel columns)
-        const allSections = [...(DB.FAQ || []), ...(DB.Agenda || []), ...(DB.Logistics || []), ...(DB.General || [])];
-        
-        // Simple but effective "Fuzzy" search
-        for (let item of allSections) {
-            // Check if the query matches a Question or a Title in your Excel
-            const textToSearch = Object.values(item).join(" ").toLowerCase();
-            if (textToSearch.includes(query)) {
-                // Return the 'Answer' or 'Description' column from your Excel
-                foundAnswer = item.Answer || item.Description || Object.values(item)[1];
-                break;
-            }
+        try {
+            const r = await fetch(WORKER_URL, {
+                method: "POST",
+                body: JSON.stringify({ message: text })
+            });
+            const d = await r.json();
+            appendMsg(d.reply, 'bot');
+        } catch (e) {
+            appendMsg("I apologize, but I am unable to connect to the server.", 'bot');
         }
-
-        setTimeout(() => appendMsg(foundAnswer, 'bot-msg'), 400);
+        document.getElementById('loading').style.display = 'none';
     }
 
-    function appendMsg(text, className) {
-        const win = document.getElementById('chat-window');
-        const div = document.createElement('div');
-        div.className = `message ${className}`;
-        div.innerHTML = text.replace(/\n/g, '<br>');
-        win.appendChild(div);
-        win.scrollTop = win.scrollHeight;
+    function appendMsg(t, c) {
+        const w = document.getElementById('chat-window');
+        const d = document.createElement('div');
+        d.className = `msg ${c}`;
+        d.innerText = t;
+        w.appendChild(d);
+        w.scrollTop = w.scrollHeight;
     }
-
-    function quickAsk(text) {
-        document.getElementById('user-input').value = text;
-        findAnswer();
-    }
-
-    loadData();
 </script>
 </body>
 </html>
