@@ -13,6 +13,7 @@
             --bg-gray: #f1f5f9;
             --white: #ffffff;
             --text-dark: #1e293b;
+            --text-muted: #64748b;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
@@ -50,15 +51,12 @@
         .msg { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; animation: fadeIn 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Bot Bubble */
         .bot { align-self: flex-start; background: var(--white); border-left: 5px solid var(--isprs-red); color: var(--text-dark); }
-        
-        /* User Bubble */
         .user { align-self: flex-end; background: var(--isprs-blue); color: var(--white); border-bottom-right-radius: 2px; }
 
         /* Input Area */
         .input-container { 
-            padding: 20px; background: var(--white); display: flex; gap: 12px; 
+            padding: 20px 20px 10px 20px; background: var(--white); display: flex; gap: 12px; 
             border-top: 1px solid #e2e8f0; align-items: center;
         }
         input { 
@@ -74,7 +72,27 @@
         }
         button:hover { transform: scale(1.05); background: #699c1a; }
 
-        /* Status & Loading */
+        /* Footer Branding */
+        .site-footer {
+            background: var(--white);
+            padding-bottom: 12px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+        .cf-logo {
+            height: 14px;
+            width: auto;
+            display: inline-block;
+            position: relative;
+            top: 1px;
+        }
+
         #loading { display: none; color: var(--isprs-blue); font-size: 0.8rem; padding: 0 35px 10px; font-weight: bold; }
 
         @media (max-width: 600px) {
@@ -87,7 +105,6 @@
 
 <header>
     <div class="logo-container">
-        <!-- Make sure you upload 'isprs-logo.png' to your GitHub repo -->
         <img src="isprs-logo.png" alt="XXV ISPRS Congress 2026 Logo">
     </div>
 </header>
@@ -95,15 +112,20 @@
 <div id="chat-window">
     <div class="msg bot">
         Hello. I am the official <b>ISPRS 2026</b> AI Assistant. <br>
-        I am here to help you with information regarding the scientific program, registration, and congress logistics.
+        How can I help you today with information about the scientific program, registration, or Toronto logistics?
     </div>
 </div>
 <div id="loading"><i class="fas fa-circle-notch fa-spin"></i> ISPRS AI is searching the database...</div>
 
 <div class="input-container">
-    <input type="text" id="user-input" placeholder="Ask about the schedule, speakers, or venue..." onkeypress="if(event.key==='Enter') askAI()">
+    <input type="text" id="user-input" placeholder="Ask a question..." onkeypress="if(event.key==='Enter') askAI()">
     <button onclick="askAI()"><i class="fas fa-paper-plane"></i></button>
 </div>
+
+<footer class="site-footer">
+    Powered by 
+    <img src="https://www.vectorlogo.zone/logos/cloudflare/cloudflare-ar21.svg" alt="Cloudflare" class="cf-logo">
+</footer>
 
 <script>
     // --- INSERT YOUR CLOUDFLARE WORKER URL HERE ---
