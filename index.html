@@ -2,68 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISPRS 2026 Assistant</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Use a professional font and icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --navy-dark: #0a192f;
-            --navy-mid: #112240;
-            --navy-light: #233554;
-            --gold: #D4AF37;
-            --gold-hover: #f1c40f;
-            --text-main: #e6f1ff;
-            --text-dim: #8892b0;
+            --primary: #0f172a;
+            --accent: #fbbf24;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --bot-msg: #ffffff;
+            --user-msg: #fbbf24;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
 
-        body {
-            background-color: var(--navy-dark);
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        body { background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
 
+        /* Professional Header */
         header {
-            background: var(--navy-mid);
-            padding: 1rem;
-            border-bottom: 3px solid var(--gold);
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border-bottom: 4px solid var(--accent);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+        header h1 { font-size: 1.2rem; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
+        #status { font-size: 0.7rem; color: #94a3b8; margin-top: 5px; }
 
-        header h1 { font-size: 1.1rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
-
-        #sync-status { font-size: 0.7rem; margin-top: 5px; color: #2ecc71; }
-
-        .chips-container {
-            padding: 12px;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            background: var(--navy-dark);
-            scrollbar-width: none;
-        }
-        .chips-container::-webkit-scrollbar { display: none; }
-
-        .chip {
-            background: var(--navy-light);
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-        }
-
-        .chip:hover { background: var(--gold); color: var(--navy-dark); }
-
+        /* Chat Container */
         #chat-window {
             flex: 1;
             overflow-y: auto;
@@ -71,125 +40,155 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            background: radial-gradient(circle at center, #112240 0%, #0a192f 100%);
+            background: #f1f5f9;
         }
 
         .message {
             max-width: 85%;
             padding: 12px 16px;
-            border-radius: 15px;
+            border-radius: 12px;
             line-height: 1.5;
             font-size: 0.95rem;
-            animation: fadeIn 0.3s ease forwards;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .bot-msg { align-self: flex-start; background-color: var(--navy-light); border: 1px solid rgba(212, 175, 55, 0.2); border-bottom-left-radius: 2px; }
-        .user-msg { align-self: flex-end; background-color: var(--gold); color: var(--navy-dark); font-weight: 600; border-bottom-right-radius: 2px; }
+        .bot-msg { align-self: flex-start; background: var(--bot-msg); color: var(--text); border-left: 4px solid var(--accent); }
+        .user-msg { align-self: flex-end; background: var(--user-msg); color: var(--primary); font-weight: 600; }
 
-        .input-area {
-            background: var(--navy-mid);
-            padding: 15px;
+        /* Quick Action Buttons */
+        .quick-actions {
             display: flex;
             gap: 10px;
-            border-top: 1px solid var(--navy-light);
+            padding: 10px 20px;
+            overflow-x: auto;
+            background: white;
+            border-top: 1px solid #e2e8f0;
         }
+        .action-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+        .action-btn:hover { background: var(--accent); border-color: var(--accent); }
 
+        /* Input Area */
+        .input-area {
+            padding: 20px;
+            background: white;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
         input {
             flex: 1;
-            background: var(--navy-dark);
-            border: 1px solid var(--navy-light);
-            padding: 12px 18px;
-            border-radius: 25px;
-            color: white;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
             outline: none;
+            font-size: 1rem;
         }
-
+        input:focus { border-color: var(--accent); }
         button {
-            background: var(--gold);
+            background: var(--primary);
+            color: var(--accent);
             border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
+            width: 50px;
+            border-radius: 8px;
             cursor: pointer;
-            color: var(--navy-dark);
+            font-size: 1.2rem;
         }
-
-        .typing { font-style: italic; color: var(--text-dim); font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1 id="main-title">ISPRS Congress 2026</h1>
-        <div id="sync-status">● Live AI Assistant</div>
-    </header>
+<header>
+    <h1>ISPRS 2026 Congress</h1>
+    <div id="status">● Connecting to Database...</div>
+</header>
 
-    <div class="chips-container">
-        <div class="chip" onclick="quickAsk('What is the agenda for Monday?')">📅 Agenda</div>
-        <div class="chip" onclick="quickAsk('What is the WiFi password?')">📶 WiFi</div>
-        <div class="chip" onclick="quickAsk('Where is registration?')">📝 Registration</div>
-        <div class="chip" onclick="quickAsk('Who are the keynote speakers?')">🎤 Speakers</div>
-    </div>
+<div class="quick-actions">
+    <button class="action-btn" onclick="quickAsk('WiFi')">📶 WiFi</button>
+    <button class="action-btn" onclick="quickAsk('Registration')">📝 Registration</button>
+    <button class="action-btn" onclick="quickAsk('Agenda')">📅 Agenda</button>
+    <button class="action-btn" onclick="quickAsk('Speakers')">🎤 Speakers</button>
+</div>
 
-    <div id="chat-window">
-        <div class="message bot-msg">Hello! I am your ISPRS 2026 AI Assistant. I have access to the latest conference schedule and details. How can I help you?</div>
-    </div>
+<div id="chat-window">
+    <div class="message bot-msg">Welcome to the XXV ISPRS Congress 2026. How can I assist you today?</div>
+</div>
 
-    <div class="input-area">
-        <input type="text" id="user-input" placeholder="Ask a question..." onkeypress="if(event.key==='Enter') sendMessage()">
-        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-    </div>
+<div class="input-area">
+    <input type="text" id="user-input" placeholder="Type your question..." onkeypress="if(event.key==='Enter') findAnswer()">
+    <button onclick="findAnswer()"><i class="fas fa-paper-plane"></i></button>
+</div>
 
 <script>
-    // REPLACE the URL below with your Cloudflare Worker URL
-    const WORKER_URL = "https://isprs2026-chatbot.arjun-e9d.workers.dev/";
+    let DB = {};
 
-    async function sendMessage() {
-        const input = document.getElementById('user-input');
-        const text = input.value.trim();
-        if (!text) return;
-
-        // Add User Message
-        appendMsg(text, 'user-msg');
-        input.value = '';
-
-        // Add Loading State
-        const loadingId = "load-" + Date.now();
-        appendMsg("Thinking...", 'bot-msg typing', loadingId);
-
+    // 1. Fetch data from your GitHub directly (No API needed)
+    async function loadData() {
         try {
-            const response = await fetch(WORKER_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text })
-            });
-            
-            const data = await response.json();
-            
-            // Remove loading, add AI response
-            document.getElementById(loadingId).remove();
-            appendMsg(data.reply, 'bot-msg');
+            // This pulls your Excel data that Power Automate saved to GitHub
+            const response = await fetch('data.json');
+            DB = await response.json();
+            document.getElementById('status').innerHTML = "● Database Live";
+            document.getElementById('status').style.color = "#22c55e";
         } catch (e) {
-            document.getElementById(loadingId).innerText = "Error connecting. Please check your internet.";
+            document.getElementById('status').innerHTML = "● Offline Mode";
         }
     }
 
-    function appendMsg(text, className, id = null) {
+    function findAnswer() {
+        const input = document.getElementById('user-input');
+        const query = input.value.trim().toLowerCase();
+        if (!query) return;
+
+        appendMsg(input.value, 'user-msg');
+        input.value = '';
+
+        // SEARCH LOGIC (The "No-API Brain")
+        let foundAnswer = "I'm sorry, I couldn't find a specific answer for that. Please visit the **Information Desk** in the Main Hall.";
+
+        // Search through your Excel categories (Adjust names to match your Excel columns)
+        const allSections = [...(DB.FAQ || []), ...(DB.Agenda || []), ...(DB.Logistics || []), ...(DB.General || [])];
+        
+        // Simple but effective "Fuzzy" search
+        for (let item of allSections) {
+            // Check if the query matches a Question or a Title in your Excel
+            const textToSearch = Object.values(item).join(" ").toLowerCase();
+            if (textToSearch.includes(query)) {
+                // Return the 'Answer' or 'Description' column from your Excel
+                foundAnswer = item.Answer || item.Description || Object.values(item)[1];
+                break;
+            }
+        }
+
+        setTimeout(() => appendMsg(foundAnswer, 'bot-msg'), 400);
+    }
+
+    function appendMsg(text, className) {
         const win = document.getElementById('chat-window');
         const div = document.createElement('div');
-        if(id) div.id = id;
         div.className = `message ${className}`;
         div.innerHTML = text.replace(/\n/g, '<br>');
         win.appendChild(div);
         win.scrollTop = win.scrollHeight;
     }
 
-    function quickAsk(t) { 
-        document.getElementById('user-input').value = t; 
-        sendMessage(); 
+    function quickAsk(text) {
+        document.getElementById('user-input').value = text;
+        findAnswer();
     }
+
+    loadData();
 </script>
 </body>
 </html>
