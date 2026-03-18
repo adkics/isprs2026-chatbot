@@ -13,17 +13,17 @@
             --bg-gray: #f1f5f9;
             --white: #ffffff;
             --text-dark: #1e293b;
-            --text-muted: #64748b;
+            --text-muted: #475569;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
         
         body { background: var(--bg-gray); color: var(--text-dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Branding Header */
+        /* SLIMMER HEADER */
         header { 
             background: var(--white); 
-            padding: 15px 0; 
+            padding: 8px 0; 
             border-bottom: 1px solid #e2e8f0;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -31,7 +31,7 @@
         }
 
         .logo-container {
-            max-width: 550px;
+            max-width: 400px; /* Reduced from 550px */
             margin: 0 auto;
             padding: 0 20px;
         }
@@ -56,37 +56,37 @@
 
         /* Input Area */
         .input-container { 
-            padding: 20px 20px 10px 20px; background: var(--white); display: flex; gap: 12px; 
+            padding: 15px 20px 8px 20px; background: var(--white); display: flex; gap: 12px; 
             border-top: 1px solid #e2e8f0; align-items: center;
         }
         input { 
-            flex: 1; background: #f8fafc; border: 1px solid #cbd5e1; padding: 14px 22px; 
+            flex: 1; background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px 22px; 
             border-radius: 30px; color: var(--text-dark); outline: none; transition: 0.2s;
         }
         input:focus { border-color: var(--isprs-blue); box-shadow: 0 0 0 3px rgba(0,86,150,0.1); }
         
         button { 
-            background: var(--isprs-green); border: none; width: 48px; height: 48px; 
+            background: var(--isprs-green); border: none; width: 44px; height: 44px; 
             border-radius: 50%; cursor: pointer; color: white; transition: 0.2s;
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
         }
         button:hover { transform: scale(1.05); background: #699c1a; }
 
-        /* Footer Branding */
+        /* BIGGER FOOTER BRANDING */
         .site-footer {
             background: var(--white);
-            padding-bottom: 12px;
+            padding: 10px 0 15px 0;
             text-align: center;
-            font-size: 0.7rem;
+            font-size: 0.85rem; /* Increased from 0.7rem */
             color: var(--text-muted);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            font-weight: 500;
+            gap: 8px;
+            font-weight: 600;
         }
         .cf-logo {
-            height: 14px;
+            height: 20px; /* Increased from 14px */
             width: auto;
             display: inline-block;
             position: relative;
@@ -96,8 +96,10 @@
         #loading { display: none; color: var(--isprs-blue); font-size: 0.8rem; padding: 0 35px 10px; font-weight: bold; }
 
         @media (max-width: 600px) {
-            .logo-container { max-width: 95%; }
+            .logo-container { max-width: 80%; }
             .msg { max-width: 90%; }
+            .site-footer { font-size: 0.8rem; }
+            .cf-logo { height: 18px; }
         }
     </style>
 </head>
