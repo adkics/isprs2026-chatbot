@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XXV ISPRS Congress 2026 | AI Assistant</title>
+    <title>ISPRS 2026 | Exhibitor Assistant</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -20,113 +20,103 @@
         
         body { background: var(--bg-gray); color: var(--text-dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
+        /* Branding Header */
         header { 
-            background: var(--white); 
-            padding: 10px 0; 
+            background: var(--white); padding: 10px 0; border-bottom: 1px solid #e2e8f0;
+            text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 10;
+        }
+        .logo-container { max-width: 380px; margin: 0 auto; padding: 0 20px; }
+        .logo-container img { width: 100%; height: auto; display: block; }
+
+        /* Quick Action Chips */
+        .chips-container {
+            padding: 12px 20px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            background: var(--white);
             border-bottom: 1px solid #e2e8f0;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            z-index: 10;
+            scrollbar-width: none;
         }
-
-        .logo-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 0 20px;
+        .chips-container::-webkit-scrollbar { display: none; }
+        
+        .chip {
+            background: var(--white);
+            border: 1px solid var(--isprs-blue);
+            color: var(--isprs-blue);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
         }
+        .chip:hover { background: var(--isprs-blue); color: white; }
 
-        .logo-container a {
-            display: block;
-            transition: opacity 0.2s;
-        }
-
-        .logo-container a:hover {
-            opacity: 0.8;
-        }
-
-        .logo-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
+        /* Chat Interface */
         #chat-window { 
             flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; 
             gap: 15px; background: var(--bg-gray); 
         }
-
-        .msg { max-width: 80%; padding: 14px 18px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; animation: fadeIn 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+        .msg { max-width: 85%; padding: 14px 18px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; animation: fadeIn 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        
         .bot { align-self: flex-start; background: var(--white); border-left: 5px solid var(--isprs-red); color: var(--text-dark); }
         .user { align-self: flex-end; background: var(--isprs-blue); color: var(--white); border-bottom-right-radius: 2px; }
 
+        /* Input Area */
         .input-container { 
             padding: 15px 20px 8px 20px; background: var(--white); display: flex; gap: 12px; 
             border-top: 1px solid #e2e8f0; align-items: center;
         }
-        input { 
-            flex: 1; background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px 22px; 
-            border-radius: 30px; color: var(--text-dark); outline: none; transition: 0.2s;
-        }
+        input { flex: 1; background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px 22px; border-radius: 30px; outline: none; transition: 0.2s; }
         input:focus { border-color: var(--isprs-blue); box-shadow: 0 0 0 3px rgba(0,86,150,0.1); }
         
-        button { 
-            background: var(--isprs-green); border: none; width: 44px; height: 44px; 
-            border-radius: 50%; cursor: pointer; color: white; transition: 0.2s;
-            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
-        }
-        button:hover { transform: scale(1.05); background: #699c1a; }
+        button { background: var(--isprs-green); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
 
-        .site-footer {
-            background: var(--white);
-            padding: 10px 0 15px 0;
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-weight: 600;
-        }
-        .cf-logo { height: 20px; width: auto; position: relative; top: 1px; }
+        /* Footer Branding */
+        .site-footer { background: var(--white); padding: 10px 0 15px 0; text-align: center; font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; }
+        .cf-logo { height: 18px; width: auto; position: relative; top: 1px; }
 
         #loading { display: none; color: var(--isprs-blue); font-size: 0.8rem; padding: 0 35px 10px; font-weight: bold; }
-
-        @media (max-width: 600px) {
-            .logo-container { max-width: 80%; }
-            .msg { max-width: 90%; }
-        }
     </style>
 </head>
 <body>
 
 <header>
     <div class="logo-container">
-        <!-- Replace '#' with your target URL -->
-        <a href="https://www.isprs2026toronto.com/" target="_blank">
+        <a href="https://isprs2026-toronto.ca" target="_blank">
             <img src="isprs-logo.png" alt="XXV ISPRS Congress 2026 Logo">
         </a>
     </div>
 </header>
 
+<!-- EXHIBITOR QUICK CHIPS -->
+<div class="chips-container">
+    <div class="chip" onclick="quickAsk('What are the Exhibition Hours?')">⏰ Hours</div>
+    <div class="chip" onclick="quickAsk('Find booth for ITRES')">🏢 Find Booth</div>
+    <div class="chip" onclick="quickAsk('What are the move-in times?')">🚛 Move-in</div>
+    <div class="chip" onclick="quickAsk('WiFi and Electricity info')">📶 WiFi/Power</div>
+    <div class="chip" onclick="quickAsk('Who is the Exhibition Manager?')">🎤 Manager</div>
+    <div class="chip" onclick="quickAsk('Exhibitor Badge registration')">📝 Badges</div>
+</div>
+
 <div id="chat-window">
     <div class="msg bot">
-        Hello. I am the official <b>ISPRS 2026</b> AI Assistant. <br>
-        How can I help you today?
+        Hello. I am the official <b>ISPRS 2026 Exhibitor Assistant</b>. <br>
+        I am here to help you with booth logistics, move-in/out schedules, and exhibition details.
     </div>
 </div>
 <div id="loading"><i class="fas fa-circle-notch fa-spin"></i> ISPRS AI is searching the database...</div>
 
 <div class="input-container">
-    <input type="text" id="user-input" placeholder="Ask a question..." onkeypress="if(event.key==='Enter') askAI()">
+    <input type="text" id="user-input" placeholder="Ask about booth 302, WiFi, or shipping..." onkeypress="if(event.key==='Enter') askAI()">
     <button onclick="askAI()"><i class="fas fa-paper-plane"></i></button>
 </div>
 
 <footer class="site-footer">
-    Powered by 
-    <img src="https://www.vectorlogo.zone/logos/cloudflare/cloudflare-ar21.svg" alt="Cloudflare" class="cf-logo">
+    Powered by <img src="https://www.vectorlogo.zone/logos/cloudflare/cloudflare-ar21.svg" alt="Cloudflare" class="cf-logo">
 </footer>
 
 <script>
@@ -162,6 +152,12 @@
         d.innerHTML = t.replace(/\n/g, '<br>'); 
         w.appendChild(d);
         w.scrollTop = w.scrollHeight;
+    }
+
+    // --- QUICK ASK FUNCTION ---
+    function quickAsk(text) {
+        document.getElementById('user-input').value = text;
+        askAI();
     }
 </script>
 </body>
